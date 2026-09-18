@@ -1,0 +1,4 @@
+# Package directories to build, in dependency order.
+# Lines starting with '#' and blank lines are ignored.
+
+dwhinham-keyring

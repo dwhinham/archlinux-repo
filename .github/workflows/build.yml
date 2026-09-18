@@ -1,0 +1,34 @@
+name: Build repository
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04-arm
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Fetch published packages
+        run: |
+          mkdir -p out
+          gh release download aarch64 --dir out --pattern '*.pkg.tar.*' || true
+
+      - name: Build
+        env:
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+        run: |
+          docker run --rm -v "$PWD:/build" -e SIGNING_KEY \
+            ironrobin/archports-aarch64:latest /build/build.sh
+
+      - name: Publish
+        run: |
+          gh release create aarch64 --title "Packages (aarch64)" --notes "" || true
+          gh release upload aarch64 out/* --clobber

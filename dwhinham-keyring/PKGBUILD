@@ -1,0 +1,19 @@
+# Maintainer: Dale Whinham <daleyo@gmail.com>
+
+pkgname=dwhinham-keyring
+pkgver=20260918
+pkgrel=1
+pkgdesc='PGP keyring for the dwhinham pacman repository'
+arch=('any')
+url='https://github.com/dwhinham/archlinux-repo'
+license=('GPL')
+install="${pkgname}.install"
+depends=('pacman')
+source=('dwhinham'{.gpg,-trusted,-revoked})
+sha256sums=('SKIP'
+            'SKIP'
+            'SKIP')
+
+package() {
+	install -D -m0644 -t "${pkgdir}/usr/share/pacman/keyrings/" 'dwhinham'{.gpg,-trusted,-revoked}
+}
