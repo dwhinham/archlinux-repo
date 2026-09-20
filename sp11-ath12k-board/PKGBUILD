@@ -1,0 +1,51 @@
+# Maintainer: Dale Whinham <daleyo@gmail.com>
+
+# Wi-Fi board file for the Surface Pro 11.
+#
+# ath12k asks linux-firmware's board-2.bin for:
+#
+#   bus=pci,vendor=17cb,device=1107,subsystem-vendor=17cb,subsystem-device=1107,
+#   qmi-chip-id=2,qmi-board-id=255
+#
+# No such entry exists. The device reports qmi-board-id=255, meaning the board
+# ID was never programmed, so no bundled entry can ever match. ath12k falls
+# back to board.bin when both board-2.bin lookups fail, so this package
+# supplies one by copying a near-miss entry out of the same bundle.
+#
+# This entry has been in use on the hardware for months.
+_board_entry='bus=pci,vendor=17cb,device=1107,subsystem-vendor=17cb,subsystem-device=3378,qmi-chip-id=2,qmi-board-id=255'
+
+_fwdir=usr/lib/firmware/ath12k/WCN7850/hw2.0
+_bdencoder_commit=6df4dae3e2f5e4c2903f3cafd40996fc1b3639ce
+
+pkgname=sp11-ath12k-board
+pkgver=20260916
+pkgrel=1
+pkgdesc='ath12k board file for Surface Pro 11 Wi-Fi (workaround)'
+arch=('any')
+# !strip is essential: the board file is an ELF, and makepkg's tidy-up would
+# otherwise run strip on it and silently corrupt the calibration data.
+options=('!strip' '!debug')
+url='https://github.com/dwhinham/archlinux-repo'
+license=('custom:qcom-linux-firmware')
+groups=('sp11')
+depends=('linux-firmware-atheros')
+makedepends=('python' 'zstd')
+source=("ath12k-bdencoder-${_bdencoder_commit}::https://raw.githubusercontent.com/qualcomm/qca-swiss-army-knife/${_bdencoder_commit}/tools/scripts/ath12k/ath12k-bdencoder")
+sha256sums=('fdcc8dc9628d67e500d496a1de22e82e136ddeaec32669ea1b3add93f2980652')
+
+build() {
+	zstd -dqf "/${_fwdir}/board-2.bin.zst" -o board-2.bin
+	python "ath12k-bdencoder-${_bdencoder_commit}" --extract board-2.bin
+
+	if [[ ! -f "${_board_entry}.bin" ]]; then
+		echo "error: '${_board_entry}' is not in this board-2.bin" >&2
+		echo "available entries:" >&2
+		ls ./*.bin >&2
+		return 1
+	fi
+}
+
+package() {
+	install -Dm644 "${_board_entry}.bin" "${pkgdir}/${_fwdir}/board.bin"
+}
