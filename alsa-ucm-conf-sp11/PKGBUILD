@@ -1,0 +1,31 @@
+# Maintainer: Dale Whinham <daleyo@gmail.com>
+
+# alsa-ucm-conf carrying the Surface Pro 11 configuration from the not-yet-merged
+# alsa-project/alsa-ucm-conf#847.
+
+_pkgname=alsa-ucm-conf
+pkgname=alsa-ucm-conf-sp11
+pkgver=1.2.16.1
+pkgrel=1
+pkgdesc='ALSA Use Case Manager configuration, with Surface Pro 11 support'
+arch=('any')
+url='https://alsa-project.org/'
+license=('BSD-3-Clause')
+groups=('sp11')
+provides=("$_pkgname=$pkgver")
+conflicts=("$_pkgname")
+source=("$url/files/pub/lib/$_pkgname-$pkgver.tar.bz2"
+        '847.patch')
+sha512sums=('df25a29afc3b87347fa89f3fe60ebda68068acdaf68e081b58455ebee319c21e82af4076ba1f10781ba620a9e8efa6e65db27c5989d63a429d44a715dbd1d460'
+            'SKIP')
+
+prepare() {
+	patch -d "$_pkgname-$pkgver" -p1 < 847.patch
+}
+
+package() {
+	cd "$_pkgname-$pkgver"
+	install -dm755 "$pkgdir/usr/share/alsa"
+	cp -a ucm2 "$pkgdir/usr/share/alsa/"
+	install -Dm644 LICENSE -t "$pkgdir/usr/share/licenses/$pkgname"
+}

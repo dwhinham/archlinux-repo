@@ -1,0 +1,165 @@
+From bab2d27ae0040a8770ff29ab34e12a3d907e46f1 Mon Sep 17 00:00:00 2001
+From: Dale Whinham <daleyo@gmail.com>
+Date: Mon, 31 Aug 2026 18:54:20 +0100
+Subject: [PATCH] ucm2: Qualcomm: x1e80100: add Microsoft Surface Pro 11
+
+Enables two WSA8845 speakers, a two-microphone VA DMIC array, and two
+DisplayPort/HDMI outputs via the USB-C ports.
+
+Devicetree changes for DP/HDMI submitted here:
+https://lore.kernel.org/lkml/20260831-surface-pro-11-dp-audio-v1-1-fb9c0d3216b7@gmail.com/
+
+Tested on a Surface Pro 11 with a HDMI display attached via USB-C
+adaptor. Switching between speaker and HDMI profiles works fine with
+PipeWire.
+
+However, the DisplayPort audio IP is powered off while no display is
+attached, so PipeWire's probe of that PCM fails and the profile is
+dropped. Displays must therefore be connected before PipeWire starts:
+
+https://lore.kernel.org/all/76b8ca1d-040b-472e-9804-5c0c0100b5b5@oss.qualcomm.com/
+
+Signed-off-by: Dale Whinham <daleyo@gmail.com>
+---
+ .../x1e80100/MICROSOFT-Surface-Pro-11.conf    | 11 +++
+ ucm2/Qualcomm/x1e80100/Surface11-HiFi.conf    | 91 +++++++++++++++++++
+ ucm2/Qualcomm/x1e80100/x1e80100.conf          | 10 ++
+ 3 files changed, 112 insertions(+)
+ create mode 100644 ucm2/Qualcomm/x1e80100/MICROSOFT-Surface-Pro-11.conf
+ create mode 100644 ucm2/Qualcomm/x1e80100/Surface11-HiFi.conf
+
+diff --git a/ucm2/Qualcomm/x1e80100/MICROSOFT-Surface-Pro-11.conf b/ucm2/Qualcomm/x1e80100/MICROSOFT-Surface-Pro-11.conf
+new file mode 100644
+index 000000000..3a63e9c10
+--- /dev/null
++++ b/ucm2/Qualcomm/x1e80100/MICROSOFT-Surface-Pro-11.conf
+@@ -0,0 +1,11 @@
++Syntax 4
++
++SectionUseCase."HiFi" {
++	File "/Qualcomm/x1e80100/Surface11-HiFi.conf"
++	Comment "HiFi quality Music."
++}
++
++Include.card-init.File "/lib/card-init.conf"
++Include.ctl-remap.File "/lib/ctl-remap.conf"
++Include.wsa-init.File "/codecs/wsa884x/two-speakers/init.conf"
++Include.wsam-init.File "/codecs/qcom-lpass/wsa-macro/init.conf"
+diff --git a/ucm2/Qualcomm/x1e80100/Surface11-HiFi.conf b/ucm2/Qualcomm/x1e80100/Surface11-HiFi.conf
+new file mode 100644
+index 000000000..f75f438f1
+--- /dev/null
++++ b/ucm2/Qualcomm/x1e80100/Surface11-HiFi.conf
+@@ -0,0 +1,91 @@
++# Use case configuration for X1E80100.
++# Author: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
++
++SectionVerb {
++	EnableSequence [
++		cset "name='WSA_CODEC_DMA_RX_0 Audio Mixer MultiMedia1' 1"
++		cset "name='MultiMedia2 Mixer VA_CODEC_DMA_TX_0' 1"
++		cset "name='DISPLAY_PORT_RX_0 Audio Mixer MultiMedia3' 1"
++		cset "name='DISPLAY_PORT_RX_1 Audio Mixer MultiMedia4' 1"
++	]
++
++	Include.wsae.File "/codecs/wsa884x/two-speakers/DefaultEnableSeq.conf"
++	Include.wsm1e.File "/codecs/qcom-lpass/wsa-macro/Wsa1SpeakerEnableSeq.conf"
++
++	Value {
++		TQ "HiFi"
++	}
++}
++
++SectionDevice."Speaker" {
++	Comment "Speaker playback"
++
++	ConflictingDevice [
++		"HDMI0"
++		"HDMI1"
++	]
++
++	Include.wsmspk1e.File "/codecs/qcom-lpass/wsa-macro/Wsa1SpeakerEnableSeq.conf"
++	Include.wsmspk1d.File "/codecs/qcom-lpass/wsa-macro/Wsa1SpeakerDisableSeq.conf"
++	Include.wsaspk.File "/codecs/wsa884x/two-speakers/SpeakerSeq.conf"
++
++	Value {
++		PlaybackChannels 2
++		PlaybackPriority 100
++		PlaybackPCM "hw:${CardId},0"
++		PlaybackMixer "default:${CardId}"
++		PlaybackMixerElem "Speakers"
++	}
++}
++
++SectionDevice."Mic" {
++	Comment "Internal microphones"
++
++	Include.vadm0e.File "/codecs/qcom-lpass/va-macro/DMIC0EnableSeq.conf"
++	Include.vadm0d.File "/codecs/qcom-lpass/va-macro/DMIC0DisableSeq.conf"
++	Include.vadm1e.File "/codecs/qcom-lpass/va-macro/DMIC1EnableSeq.conf"
++	Include.vadm1d.File "/codecs/qcom-lpass/va-macro/DMIC1DisableSeq.conf"
++
++	Value {
++		CapturePriority 100
++		CapturePCM "hw:${CardId},1"
++	}
++}
++
++SectionDevice."HDMI0" {
++	Comment "USB/DisplayPort 0 playback"
++
++	ConflictingDevice [
++		"Speaker"
++		"HDMI1"
++	]
++
++	EnableSequence [
++		cset "name='DISPLAY_PORT_RX_0 Audio Mixer MultiMedia3' 1"
++	]
++
++	Value {
++		PlaybackPriority 200
++		PlaybackPCM "hw:${CardId},2"
++		JackControl "DP0 Jack"
++	}
++}
++
++SectionDevice."HDMI1" {
++	Comment "USB/DisplayPort 1 playback"
++
++	ConflictingDevice [
++		"Speaker"
++		"HDMI0"
++	]
++
++	EnableSequence [
++		cset "name='DISPLAY_PORT_RX_1 Audio Mixer MultiMedia4' 1"
++	]
++
++	Value {
++		PlaybackPriority 200
++		PlaybackPCM "hw:${CardId},3"
++		JackControl "DP1 Jack"
++	}
++}
+diff --git a/ucm2/Qualcomm/x1e80100/x1e80100.conf b/ucm2/Qualcomm/x1e80100/x1e80100.conf
+index 0812f64f8..ab023eda1 100644
+--- a/ucm2/Qualcomm/x1e80100/x1e80100.conf
++++ b/ucm2/Qualcomm/x1e80100/x1e80100.conf
+@@ -22,6 +22,16 @@ If.LENOVOSlim7x {
+ 	True.Include.7x.File "/Qualcomm/x1e80100/LENOVO-Slim-7x.conf"
+ }
+ 
++# 2x WSA Speakers | 2x Microphones | 2x DP/HDMI
++If.SURFACEPro11 {
++	Condition {
++		Type RegexMatch
++		String "${var:DMI_info}"
++		Regex "Microsoft Corporation.*Surface.*Microsoft Surface Pro, 11th Edition"
++	}
++	True.Include.sp11.File "/Qualcomm/x1e80100/MICROSOFT-Surface-Pro-11.conf"
++}
++
+ # 2x WSA Speakers | ?x Microphones | 2x DP/HDMI
+ If.SURFACEPro12in {
+ 	Condition {

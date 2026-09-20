@@ -1,0 +1,32 @@
+# Maintainer: Dale Whinham <daleyo@gmail.com>
+
+# AudioReach topology for the Surface Pro 11. Without it the sound card never
+# registers; the kernel looks for it by the sound node's model name.
+#
+# Merged upstream but missed the v1.0.4 release, so it has not reached
+# linux-firmware yet. Drop this package once linux-firmware-qcom ships the file,
+# or pacman will report a file conflict on upgrade.
+
+_commit=993a17dcb672357998a463a73f120064d6c74f4f
+
+pkgname=sp11-audioreach-topology
+pkgver=20260918
+pkgrel=1
+pkgdesc='AudioReach topology for Surface Pro 11 audio'
+arch=('any')
+url='https://github.com/linux-msm/audioreach-topology'
+license=('BSD-3-Clause')
+groups=('sp11')
+makedepends=('alsa-utils' 'cmake' 'm4')
+source=("$pkgname-$_commit.tar.gz::$url/archive/$_commit.tar.gz")
+sha256sums=('58e0fa0ab9702c5237b4bea1f0486bcc8af7470fafd2d4ad8d508754fd269b17')
+
+build() {
+	cmake -B build -S "audioreach-topology-$_commit"
+	cmake --build build --target topology_X1E80100-Microsoft-Surface-Pro-11
+}
+
+package() {
+	install -Dm644 build/qcom/x1e80100/X1E80100-Microsoft-Surface-Pro-11-tplg.bin \
+		"$pkgdir/usr/lib/firmware/qcom/x1e80100/X1E80100-Microsoft-Surface-Pro-11-tplg.bin"
+}

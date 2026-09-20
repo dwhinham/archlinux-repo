@@ -1,6 +1,15 @@
 # Package directories to build, in dependency order.
 # Lines starting with '#' and blank lines are ignored.
 
+# Keyring
 dwhinham-keyring
-sp11-ath12k-board
+
+# Kernel
 linux-sp11
+linux-sp11-uki
+
+# Surface Pro 11 support
+sp11-ath12k-board
+sp11-audioreach-topology
+alsa-ucm-conf-sp11
+sp11-grab-fw

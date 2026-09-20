@@ -1,0 +1,47 @@
+#!/bin/bash
+# Builds one unified kernel image per Surface Pro 11 variant.
+
+set -euo pipefail
+
+pkgbase=linux-sp11
+esp=/boot
+variants=(
+	'oled:qcom/x1e80100-microsoft-denali-oled.dtb'
+	'lcd:qcom/x1p64100-microsoft-denali.dtb'
+)
+
+kver=
+for f in /usr/lib/modules/*/pkgbase; do
+	[[ -r $f && $(<"$f") == "$pkgbase" ]] || continue
+	kver=${f%/pkgbase}; kver=${kver##*/}
+done
+[[ -n $kver ]] || { echo "$pkgbase is not installed, nothing to build" >&2; exit 0; }
+
+initrd="$esp/initramfs-$pkgbase.img"
+[[ -e $initrd ]] || { echo "no initramfs at $initrd, has mkinitcpio run?" >&2; exit 1; }
+# Exit 0, not 1: this runs as a pacman hook, and a system with no
+# /etc/kernel/cmdline has no unified kernel images to keep up to date.
+# Failing here would abort the transaction that installed this package.
+[[ -r /etc/kernel/cmdline ]] || { echo "no /etc/kernel/cmdline, nothing to build" >&2; exit 0; }
+
+install -d "$esp/EFI/Linux"
+
+for variant in "${variants[@]}"; do
+	name=${variant%%:*}
+	dtb="/usr/lib/modules/$kver/dtb/${variant#*:}"
+	[[ -e $dtb ]] || { echo "skipping $name: no $dtb" >&2; continue; }
+
+	# Distinguishes the two entries in the boot menu, which is the only way
+	# to choose between the panel variants.
+	osrel=$(printf 'ID=arch\nPRETTY_NAME=Arch Linux (Surface Pro 11, %s)\nVERSION_ID=%s\n' "$name" "$kver")
+
+	echo "Building $pkgbase-$name.efi ($kver)"
+	ukify build \
+		--uname="$kver" \
+		--linux="/usr/lib/modules/$kver/vmlinuz" \
+		--initrd="$initrd" \
+		--cmdline=@/etc/kernel/cmdline \
+		--os-release="$osrel" \
+		--devicetree="$dtb" \
+		--output="$esp/EFI/Linux/$pkgbase-$name.efi"
+done

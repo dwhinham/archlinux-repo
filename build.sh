@@ -28,9 +28,14 @@ while read -r dir; do
 	[[ -n "$dir" && "$dir" != \#* ]] || continue
 	cd "/build/$dir"
 
+	# Only packages that compile something need their dependencies installed.
+	# The rest just copy files into place, and -s would try to pull in a whole
+	# kernel from a repository that does not exist yet.
+	grep -qE '^build\(\)' PKGBUILD && dep=-s || dep=-d
+
 	# makepkg exits 13 when the package is already built.
 	sudo -u builduser --preserve-env=PKGDEST,BUILDDIR,SRCDEST,MAKEFLAGS,CCACHE_DIR,CCACHE_MAXSIZE \
-		makepkg -s --noconfirm --sign < /dev/null || [[ $? == 13 ]]
+		makepkg "$dep" --noconfirm --sign < /dev/null || [[ $? == 13 ]]
 done < /build/packages.list
 
 sudo -u builduser --preserve-env=CCACHE_DIR ccache --show-stats || true

@@ -1,0 +1,24 @@
+# Maintainer: Dale Whinham <daleyo@gmail.com>
+
+# Fetches the proprietary firmware the Surface Pro 11 needs for its GPU, aDSP
+# and cDSP. Those blobs cannot be redistributed, so this package ships only the
+# script that retrieves them, either from the WOA-Project driver repository or
+# from the machine's own Windows partition with --win.
+
+pkgname=sp11-grab-fw
+pkgver=20260920
+pkgrel=1
+pkgdesc='Fetch Surface Pro 11 GPU and DSP firmware from Windows or the WOA-Project drivers'
+arch=('any')
+url='https://github.com/dwhinham/archiso-aarch64-sp11'
+license=('BSD-3-Clause')
+groups=('sp11')
+depends=('bash' 'cabextract' 'curl' 'jq' 'util-linux')
+optdepends=('dislocker: read firmware from a BitLocker encrypted Windows partition (--win)'
+            'ntfs-3g: mount the Windows partition (--win)')
+source=('sp11-grab-fw.sh')
+sha256sums=('SKIP')
+
+package() {
+	install -Dm755 sp11-grab-fw.sh "${pkgdir}/usr/bin/${pkgname}"
+}

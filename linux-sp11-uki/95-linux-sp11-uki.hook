@@ -1,0 +1,11 @@
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Type = Package
+Target = linux-sp11
+Target = linux-sp11-dtbs
+
+[Action]
+Description = Building Surface Pro 11 unified kernel images...
+When = PostTransaction
+Exec = /usr/bin/linux-sp11-mkuki
