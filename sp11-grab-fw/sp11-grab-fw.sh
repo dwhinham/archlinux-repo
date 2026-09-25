@@ -1,5 +1,4 @@
 #!/bin/bash
-# SPDX-License-Identifier: BSD-3-Clause
 
 set -e
 
@@ -12,13 +11,14 @@ DRIVER_REPO_DOWNLOAD_URL="https://raw.githubusercontent.com/${GITHUB_REPO}/maste
 SOURCE_PREFIX="Windows/System32/DriverStore/FileRepository"
 DEST_PREFIX="/lib/firmware"
 
-#	Source file			Source .cab						Destination (under /lib/firmware/)
+#	Source file		Source .cab			Destination (under /lib/firmware/)
 firmware=(
-	"qcdxkmsuc8380.mbn"	"qcdx8380.cab"					"qcom/x1e80100/microsoft/qcdxkmsuc8380.mbn"
 	"adsp_dtbs.elf"		"surfacepro_ext_adsp8380.cab"	"qcom/x1e80100/microsoft/Denali/adsp_dtb.mbn"
-	"qcadsp8380.mbn"	"surfacepro_ext_adsp8380.cab"	"qcom/x1e80100/microsoft/Denali/qcadsp8380.mbn"
 	"cdsp_dtbs.elf"		"qcnspmcdm_ext_cdsp8380.cab"	"qcom/x1e80100/microsoft/Denali/cdsp_dtb.mbn"
+	"qcadsp8380.mbn"	"surfacepro_ext_adsp8380.cab"	"qcom/x1e80100/microsoft/Denali/qcadsp8380.mbn"
 	"qccdsp8380.mbn"	"qcnspmcdm_ext_cdsp8380.cab"	"qcom/x1e80100/microsoft/Denali/qccdsp8380.mbn"
+	"qcdxkmsuc8380.mbn"	"qcdx8380.cab"			"qcom/x1e80100/microsoft/qcdxkmsuc8380.mbn"
+	"qcvss8380.mbn"		"qcdx8380.cab"			"qcom/x1e80100/microsoft/Denali/qcvss8380.mbn"
 )
 
 function check_root {
@@ -41,34 +41,13 @@ function check_tools_dl {
 			echo "$tool" not found - please install it!
 			exit 1
 		fi
-	done 
+	done
 }
 
 function check_tools_win {
 	if ! command -v dislocker >/dev/null 2>&1; then
 		echo "dislocker not found - please install it!"
 		exit 1
-	fi
-}
-
-function move_adsp_fw {
-	# If booted from USB, disable the ADSP firmware otherwise we will get a boot failure
-	# (the ADSP will reset the USB devices mid-boot and cause issues)
-	root_device=$(findmnt -n -o SOURCE /)
-	root_drive=$(lsblk -no PKNAME "$root_device")
-
-	if [[ ! "$root_drive" == nvme* ]]; then
-		mv $DEST_PREFIX/qcom/x1e80100/microsoft/Denali/adsp_dtb.mbn{,.disabled}
-
-		cat <<-EOF
-
-		$(echo -e "\e[1;31mWARNING:\e[0m")
-		Current root partition is NOT on an NVMe drive: $root_drive
-
-		The ADSP firmware has been installed to '$DEST_PREFIX/qcom/x1e80100/microsoft/Denali/adsp_dtb.mbn.disabled'.
-		This is to avoid boot failure because you ran this script inside a live USB environment.
-		Rename this file from 'adsp_dtb.mbn.disabled' to 'adsp_dtb.mbn' if you want to enable it after installing to NVMe.
-		EOF
 	fi
 }
 
@@ -106,8 +85,6 @@ function grab_fw_download {
 
 	cp -rv "$tmp"/firmware/* "$DEST_PREFIX"
 	rm -rf "$tmp"
-
-	move_adsp_fw
 }
 
 function grab_fw_windows {
@@ -145,8 +122,6 @@ function grab_fw_windows {
 	umount "$tmp/windows"
 	umount "$tmp/dislocker"
 	rm -r "$tmp"
-
-	move_adsp_fw
 }
 
 function print_usage {
@@ -163,6 +138,6 @@ check_root
 case "$1" in
     -d|--download) grab_fw_download ;;
     -w|--win) grab_fw_windows ;;
-	-h|--help) print_usage ;;
+    -h|--help) print_usage ;;
     *) grab_fw_download ;;
 esac
