@@ -1,0 +1,12 @@
+# Both rules are pinned to the soldered parts by their fixed addresses, so a
+# plugged-in card of the same make never picks up these addresses.
+
+# Wi-Fi (WCN7850)
+ACTION=="add", SUBSYSTEM=="net", SUBSYSTEMS=="pci", KERNELS=="0004:01:00.0", \
+	ATTRS{vendor}=="0x17cb", ATTRS{device}=="0x1107", \
+	RUN+="/usr/bin/sp11-mac-fixup wifi $name"
+
+# Bluetooth
+ACTION=="add", SUBSYSTEM=="bluetooth", ENV{DEVTYPE}=="host", \
+	SUBSYSTEMS=="platform", KERNELS=="a98000.serial", \
+	TAG+="systemd", ENV{SYSTEMD_WANTS}+="sp11-bt-mac@$kernel.service"

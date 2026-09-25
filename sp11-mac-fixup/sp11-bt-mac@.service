@@ -1,0 +1,9 @@
+[Unit]
+Description=Apply the factory Bluetooth address to %i
+Before=bluetooth.service
+ConditionPathExists=/usr/bin/btmgmt
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/bin/sp11-mac-fixup bt %i

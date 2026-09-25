@@ -13,3 +13,4 @@ sp11-ath12k-board
 sp11-audioreach-topology
 alsa-ucm-conf-sp11
 sp11-grab-fw
+sp11-mac-fixup

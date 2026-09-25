@@ -1,0 +1,28 @@
+# Maintainer: Dale Whinham <daleyo@gmail.com>
+
+# The factory Wi-Fi and Bluetooth addresses live in the DPP partition of the
+# SPI-NOR flash, which Linux has no driver for, so they are configured by hand
+# in /etc/sp11-mac.conf and applied here.
+
+pkgname=sp11-mac-fixup
+pkgver=1
+pkgrel=1
+pkgdesc='Apply the factory Wi-Fi and Bluetooth addresses on the Surface Pro 11'
+arch=('any')
+url='https://github.com/dwhinham/archlinux-repo'
+license=('BSD-3-Clause')
+groups=('sp11')
+depends=('bash' 'bluez-utils' 'iproute2')
+backup=('etc/sp11-mac.conf')
+source=('sp11-mac-fixup'
+        'sp11-mac.conf'
+        '90-sp11-mac.rules'
+        'sp11-bt-mac@.service')
+sha256sums=('SKIP' 'SKIP' 'SKIP' 'SKIP')
+
+package() {
+	install -Dm755 sp11-mac-fixup "$pkgdir/usr/bin/sp11-mac-fixup"
+	install -Dm644 sp11-mac.conf "$pkgdir/etc/sp11-mac.conf"
+	install -Dm644 90-sp11-mac.rules "$pkgdir/usr/lib/udev/rules.d/90-sp11-mac.rules"
+	install -Dm644 sp11-bt-mac@.service "$pkgdir/usr/lib/systemd/system/sp11-bt-mac@.service"
+}

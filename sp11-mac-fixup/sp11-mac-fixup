@@ -1,0 +1,46 @@
+#!/bin/bash
+# SPDX-License-Identifier: BSD-3-Clause
+#
+# Apply the factory Wi-Fi and Bluetooth addresses from /etc/sp11-mac.conf.
+#
+# They live in the DPP partition of the SPI-NOR flash, which Linux has no
+# driver for, so they cannot be discovered at runtime and must be configured.
+
+set -euo pipefail
+
+CONF=/etc/sp11-mac.conf
+WIFI_MAC=
+BT_MAC=
+
+[[ -r $CONF ]] && . "$CONF"
+
+valid() { [[ $1 =~ ^([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}$ && $1 != 00:00:00:00:00:00 ]]; }
+
+case ${1:-} in
+wifi)
+	dev=${2:?usage: ${0##*/} wifi <interface>}
+	valid "${WIFI_MAC:-}" || exit 0
+	ip link set dev "$dev" address "$WIFI_MAC"
+	;;
+bt)
+	hci=${2:?usage: ${0##*/} bt <hciN>}
+	valid "${BT_MAC:-}" || exit 0
+	# WCN7850 has no usable address of its own, so until one is set the
+	# controller stays unconfigured and has no index to address it by.
+	# The device node also appears a couple of seconds before the QCA
+	# firmware download finishes, so retry until it takes.
+	for _ in $(seq 30); do
+		if btmgmt --index "$hci" public-addr "$BT_MAC" >/dev/null 2>&1 ||
+		   btmgmt public-addr "$BT_MAC" >/dev/null 2>&1; then
+			exit 0
+		fi
+		sleep 0.5
+	done
+	echo "${0##*/}: $hci did not accept an address" >&2
+	exit 1
+	;;
+*)
+	echo "usage: ${0##*/} {wifi <interface>|bt <hciN>}" >&2
+	exit 1
+	;;
+esac
