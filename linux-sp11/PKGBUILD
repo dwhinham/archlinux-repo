@@ -84,6 +84,10 @@ prepare() {
 
   echo "Setting config..."
   cp ../config.$CARCH .config
+
+  # Enable HID-over-SPI
+  scripts/config --module SPI_HID --module SPI_HID_OF
+
   make olddefconfig
   diff -u ../config.$CARCH .config || :
 
