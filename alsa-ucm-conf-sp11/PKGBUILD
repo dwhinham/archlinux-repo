@@ -14,6 +14,9 @@ license=('BSD-3-Clause')
 groups=('sp11')
 provides=("$_pkgname=$pkgver")
 conflicts=("$_pkgname")
+# Without replaces, an install that pulls in alsa-ucm-conf first (pipewire does,
+# via alsa-lib) leaves pacman refusing to swap it under --noconfirm.
+replaces=("$_pkgname")
 source=("$url/files/pub/lib/$_pkgname-$pkgver.tar.bz2"
         '847.patch')
 sha512sums=('df25a29afc3b87347fa89f3fe60ebda68068acdaf68e081b58455ebee319c21e82af4076ba1f10781ba620a9e8efa6e65db27c5989d63a429d44a715dbd1d460'
