@@ -1,0 +1,59 @@
+# Maintainer: Dale Whinham <daleyo@gmail.com>
+
+# Upstream's own PKGBUILD, from https://github.com/linux-surface/repo
+#
+# Changed only to build from a release tarball rather than in-place.
+# linux-surface only publishes x86_64 binaries right now.
+
+pkgname=iptsd
+pkgver=3.1.0
+pkgrel=1
+pkgdesc='Userspace daemon for Intel Precise Touch & Stylus'
+arch=('x86_64' 'aarch64')
+url='https://github.com/linux-surface/iptsd'
+license=('GPL')
+depends=(
+	'libgl'
+	'libx11'
+	'libxext'
+	'libxcursor'
+	'libxi'
+	'libxfixes'
+	'libxrandr'
+	'libcairomm-1.0.so'
+)
+makedepends=(
+	'meson'
+	'gcc'
+	'systemd'
+	'udev'
+)
+
+backup=(
+	'etc/iptsd.conf'
+)
+
+source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
+sha256sums=('af0aab95387a5107dfa8ac1ef90a29289f6b9d06e1a59121c9e5e732b27a266c')
+
+build() {
+	cd "$pkgname-$pkgver"
+
+	export CFLAGS="$(echo "$CFLAGS" | sed 's|-O2||g' | sed 's|-mtune=generic||g' | sed 's|-march=x86_64||g')"
+	export CXXFLAGS="$(echo "$CXXFLAGS" | sed 's|-O2||g' | sed 's|-mtune=generic||g' | sed 's|-march=x86_64||g')"
+
+	arch-meson build --default-library=static --wrap-mode=forcefallback --buildtype=release --debug
+	meson compile -C build
+}
+
+check() {
+	cd "$pkgname-$pkgver"
+
+	meson test -C build
+}
+
+package() {
+	cd "$pkgname-$pkgver"
+
+	DESTDIR="$pkgdir" meson install -C build --skip-subprojects
+}
