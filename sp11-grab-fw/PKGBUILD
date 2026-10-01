@@ -6,7 +6,7 @@
 # from the machine's own Windows partition with --win.
 
 pkgname=sp11-grab-fw
-pkgver=20260920
+pkgver=20260925
 pkgrel=1
 pkgdesc='Fetch Surface Pro 11 GPU and DSP firmware from Windows or the WOA-Project drivers'
 arch=('any')
