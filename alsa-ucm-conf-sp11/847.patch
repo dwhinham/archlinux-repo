@@ -1,4 +1,4 @@
-From bab2d27ae0040a8770ff29ab34e12a3d907e46f1 Mon Sep 17 00:00:00 2001
+From badb04bdff4ee808f2609d4eb270101a6212f0f2 Mon Sep 17 00:00:00 2001
 From: Dale Whinham <daleyo@gmail.com>
 Date: Mon, 31 Aug 2026 18:54:20 +0100
 Subject: [PATCH] ucm2: Qualcomm: x1e80100: add Microsoft Surface Pro 11
@@ -30,7 +30,7 @@ Signed-off-by: Dale Whinham <daleyo@gmail.com>
 
 diff --git a/ucm2/Qualcomm/x1e80100/MICROSOFT-Surface-Pro-11.conf b/ucm2/Qualcomm/x1e80100/MICROSOFT-Surface-Pro-11.conf
 new file mode 100644
-index 000000000..3a63e9c10
+index 0000000..3a63e9c
 --- /dev/null
 +++ b/ucm2/Qualcomm/x1e80100/MICROSOFT-Surface-Pro-11.conf
 @@ -0,0 +1,11 @@
@@ -47,7 +47,7 @@ index 000000000..3a63e9c10
 +Include.wsam-init.File "/codecs/qcom-lpass/wsa-macro/init.conf"
 diff --git a/ucm2/Qualcomm/x1e80100/Surface11-HiFi.conf b/ucm2/Qualcomm/x1e80100/Surface11-HiFi.conf
 new file mode 100644
-index 000000000..f75f438f1
+index 0000000..f75f438
 --- /dev/null
 +++ b/ucm2/Qualcomm/x1e80100/Surface11-HiFi.conf
 @@ -0,0 +1,91 @@
@@ -143,7 +143,7 @@ index 000000000..f75f438f1
 +	}
 +}
 diff --git a/ucm2/Qualcomm/x1e80100/x1e80100.conf b/ucm2/Qualcomm/x1e80100/x1e80100.conf
-index 0812f64f8..ab023eda1 100644
+index 0812f64..7177a56 100644
 --- a/ucm2/Qualcomm/x1e80100/x1e80100.conf
 +++ b/ucm2/Qualcomm/x1e80100/x1e80100.conf
 @@ -22,6 +22,16 @@ If.LENOVOSlim7x {
@@ -155,7 +155,7 @@ index 0812f64f8..ab023eda1 100644
 +	Condition {
 +		Type RegexMatch
 +		String "${var:DMI_info}"
-+		Regex "Microsoft Corporation.*Surface.*Microsoft Surface Pro, 11th Edition"
++		Regex "Microsoft Corporation.*Surface.*Microsoft Surface Pro( with 5G)?, 11th Edition"
 +	}
 +	True.Include.sp11.File "/Qualcomm/x1e80100/MICROSOFT-Surface-Pro-11.conf"
 +}
@@ -163,3 +163,6 @@ index 0812f64f8..ab023eda1 100644
  # 2x WSA Speakers | ?x Microphones | 2x DP/HDMI
  If.SURFACEPro12in {
  	Condition {
+-- 
+2.56.0
+

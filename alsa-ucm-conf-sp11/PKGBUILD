@@ -6,7 +6,7 @@
 _pkgname=alsa-ucm-conf
 pkgname=alsa-ucm-conf-sp11
 pkgver=1.2.16.1
-pkgrel=1
+pkgrel=2
 pkgdesc='ALSA Use Case Manager configuration, with Surface Pro 11 support'
 arch=('any')
 url='https://alsa-project.org/'
