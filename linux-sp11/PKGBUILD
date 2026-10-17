@@ -9,11 +9,11 @@
 # Upstream maintainer: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
 
 pkgbase=linux-sp11
-pkgver=7.2.8.arch1
-pkgrel=3
+pkgver=7.2.11.arch1
+pkgrel=1
 pkgdesc='Surface Pro 11 Linux'
 url='https://github.com/dwhinham/linux-sp11'
-_commit=616a9f22113e7dc96e558b4426424ea1d7511092
+_commit=8f2d2848801e8bcd61c14da3fc2cdff4f414dd92
 arch=(
   aarch64
 )
@@ -59,7 +59,7 @@ source=(
 )
 source_aarch64=(config.aarch64)
 sha256sums=('SKIP')
-sha256sums_aarch64=('96e7b20fd17908a71c5bc2cd3e4abe52f7b0d91658f2f3b8c333c1c93c7dfe26')
+sha256sums_aarch64=('5770111e938fee7df98346d640c97f28d698b9d926c93b92c71ad067c9d7cce4')
 
 export KBUILD_BUILD_HOST=archlinux
 export KBUILD_BUILD_USER=$pkgbase
