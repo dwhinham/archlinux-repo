@@ -43,7 +43,7 @@ sudo -u builduser --preserve-env=CCACHE_DIR ccache --show-stats || true
 chmod -R a+rX "$CCACHE_DIR"
 
 cd "$PKGDEST"
-sudo -u builduser repo-add --sign dwhinham.db.tar.gz ./*.pkg.tar.zst
+sudo -u builduser repo-add --sign --prevent-downgrade dwhinham.db.tar.gz ./*.pkg.tar.zst
 
 # Release assets cannot be symlinks.
 for link in *.db *.files; do
