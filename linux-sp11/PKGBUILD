@@ -10,10 +10,10 @@
 
 pkgbase=linux-sp11
 pkgver=7.2.11.arch1
-pkgrel=1
+pkgrel=2
 pkgdesc='Surface Pro 11 Linux'
 url='https://github.com/dwhinham/linux-sp11'
-_commit=8f2d2848801e8bcd61c14da3fc2cdff4f414dd92
+_commit=d6333a45f9bc9a1fa82a90146dbc9c159e83cd1b
 arch=(
   aarch64
 )
