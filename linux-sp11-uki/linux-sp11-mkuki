@@ -40,6 +40,7 @@ for variant in "${variants[@]}"; do
 	echo "Building $pkgbase-$name.efi ($kver)"
 	ukify build \
 		--uname="$kver" \
+		--hwids= \
 		--linux="/usr/lib/modules/$kver/vmlinuz" \
 		--initrd="$initrd" \
 		--cmdline=@/etc/kernel/cmdline \
