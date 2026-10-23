@@ -4,6 +4,7 @@ Operation = Upgrade
 Type = Package
 Target = linux-sp11
 Target = linux-sp11-dtbs
+Target = linux-sp11-uki
 
 [Action]
 Description = Building Surface Pro 11 unified kernel images...

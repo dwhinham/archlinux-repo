@@ -7,7 +7,9 @@ pkgbase=linux-sp11
 esp=/boot
 variants=(
 	'oled:qcom/x1e80100-microsoft-denali-oled.dtb'
+	'oled-5g:qcom/x1e80100-microsoft-denali-oled-5g.dtb'
 	'lcd:qcom/x1p64100-microsoft-denali.dtb'
+	'lcd-5g:qcom/x1p64100-microsoft-denali-5g.dtb'
 )
 
 kver=
