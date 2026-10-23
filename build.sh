@@ -13,6 +13,10 @@ pacman-key --init
 pacman -Syu --noconfirm --needed base-devel ccache
 sed -i 's/!ccache/ccache/' /etc/makepkg.conf
 
+# linux-api-headers 7.3 uses __u128, which a 7.2 kernel's tools/include lacks,
+# breaking resolve_btfids. Hold it at 7.2 until we build a 7.3 kernel.
+pacman -U --noconfirm /build/ci/linux-api-headers-7.2-1-aarch64.pkg.tar.zst
+
 # makepkg refuses to run as root.
 useradd -m builduser
 printf 'builduser ALL=(ALL) NOPASSWD: ALL\n' > /etc/sudoers.d/builduser
